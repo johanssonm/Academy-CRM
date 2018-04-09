@@ -16,13 +16,7 @@ namespace CRM
         {
             MainMenu();
 
-
-
-            PrintAllUsers();
-
-            AddNewUser();
-
-            PrintAllUsers();
+            RemoveUser();
 
             Console.ReadKey();
         
@@ -92,6 +86,85 @@ namespace CRM
                 Console.WriteLine($"{rows} st användare lades till ");
                 Console.ReadKey();
                
+            }
+
+        }
+
+        static void ModifyUser()
+
+        {
+            Console.WriteLine();
+            Console.WriteLine("Vilken användare vill du ändra? Ange ID :");
+            var id = Console.ReadLine();
+            Console.WriteLine();
+
+            PrintAllUsers();
+
+            Console.WriteLine();
+
+            Console.WriteLine("1/4, Ange ett förnamn: ");
+            var firstname = Console.ReadLine();
+            Console.WriteLine("2/4, Ange ett efternamn: ");
+            var lastname = Console.ReadLine();
+            Console.WriteLine("3/4, Ange en e-post: ");
+            var email = Console.ReadLine();
+            Console.WriteLine("4/4, Ange ett telefonnummer: ");
+            var phone = Console.ReadLine();
+
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (connection)
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(@" Update Users
+                                                   SET FirstName=@FirstName, LastName=@LastName, Email=@Email, Phone=@Phone
+                                                   WHERE Id=@Id", connection);
+                var writer = cmd.Parameters;
+
+                writer.AddWithValue("@Id", id);
+                writer.AddWithValue("@FirstName", firstname);
+                writer.AddWithValue("@LastName", lastname);
+                writer.AddWithValue("@Email", email);
+                writer.AddWithValue("@Phone", phone);
+
+
+
+                int rows = cmd.ExecuteNonQuery();
+
+                Console.WriteLine($"{rows} st användare uppdaterades. ");
+                Console.ReadKey();
+
+            }
+
+        }
+
+        static void RemoveUser()
+
+        {
+            Console.WriteLine();
+            Console.WriteLine("Vilken användare vill du radera? Ange ID :");
+            Console.WriteLine();
+
+            PrintAllUsers();
+
+            Console.WriteLine();
+
+            var id = Console.ReadLine();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (connection)
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(@" DELETE FROM Users
+                                                   WHERE Id=@Id", connection);
+                var writer = cmd.Parameters;
+
+                writer.AddWithValue("@Id", id);
+
+                int rows = cmd.ExecuteNonQuery();
+
+                Console.WriteLine($"{rows} st användare uppdaterades. ");
+
             }
 
         }
