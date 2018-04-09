@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.SqlClient;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
@@ -15,10 +16,6 @@ namespace CRM
         static void Main(string[] args)
         {
             MainMenu();
-
-            RemoveUser();
-
-            Console.ReadKey();
         
         }
 
@@ -29,6 +26,7 @@ namespace CRM
         //  Hämta alla kunder
         static void PrintAllUsers()
         {
+            Console.WriteLine();
 
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
@@ -45,7 +43,6 @@ namespace CRM
                         reader.GetInt32(0), reader.GetString(1), reader.GetString(2));
                     }
 
-                    Console.ReadKey();
 
                 }
 
@@ -175,8 +172,92 @@ namespace CRM
         static void MainMenu()
         {
 
-            Console.WriteLine("Huvudmeny: ");
-            Console.WriteLine("---");
+            while (true)
+
+            {
+
+                Console.WriteLine();
+                Console.WriteLine("Huvudmeny: ");
+                Console.WriteLine("---");
+                Console.WriteLine("1. Lägg till en ny användare");
+                Console.WriteLine("2. Ändra befintlig användare");
+                Console.WriteLine("3. Radera befintlig användare");
+                Console.WriteLine("4. Lista alla användare");
+                Console.WriteLine("---");
+                Console.WriteLine("0. för att avsluta");
+
+                try
+                {
+
+                    var menuChoice = Convert.ToInt32(Console.ReadLine());
+
+                    if (menuChoice == 1)
+                    {
+                        AddNewUser();
+
+                        Console.WriteLine();
+                        continue;
+                    }
+
+                    if (menuChoice == 2)
+                    {
+                        RemoveUser();
+
+                        Console.WriteLine();
+                        continue;
+
+                    }
+
+                    if (menuChoice == 3)
+                    {
+                        ModifyUser();
+
+                        Console.WriteLine();
+                        continue;
+                    }
+
+                    if (menuChoice == 4)
+                    {
+                        PrintAllUsers();
+
+                        Console.WriteLine();
+                        continue;
+
+
+                    }
+
+                    if (menuChoice == 0)
+                    {
+                        break;
+                    }
+
+                    else
+                    {
+                        Console.WriteLine();
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("Var vänlig välj något i menyn... ");
+                        Console.ResetColor();
+                        Console.WriteLine();
+                    }
+
+                }
+
+                catch (SystemException)
+                {
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Var vänlig välj något i menyn... ");
+                    Console.ResetColor();
+                    Console.WriteLine();
+
+                }
+
+            }
+            Console.WriteLine();
+            Console.WriteLine("Tack och hej!");
+            Console.WriteLine();
+            Console.ReadKey();
+
 
         }
     }
