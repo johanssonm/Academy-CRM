@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 
 namespace CRM
 {
@@ -6,7 +7,30 @@ namespace CRM
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            MainMenu();
+
+
+            //  Skapa en ny kund
+            //  Ändra en kund
+            //  Ta bort en kund
+            //  Hämta alla kunder
+
+            using (Sql)
+
+                Console.ReadKey();
+
+
+
+        }
+
+        static void MainMenu()
+        {
+
+            Console.WriteLine("Huvudmeny: ");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+
         }
     }
 }
