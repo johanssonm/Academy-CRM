@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
 namespace CRM
@@ -36,7 +37,7 @@ namespace CRM
         {
 
             {
-
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 using (connection)
                 {
                     connection.Open();
@@ -53,31 +54,42 @@ namespace CRM
                     Console.ReadKey();
 
                 }
+
             
             }
         }
 
         static void AddNewUser()
+
         {
-            var firstname = "Test";
-            var lastname = "Test";
-            var email = "Test";
-            var phone = "Test";
+            Console.WriteLine();
+            Console.WriteLine("1/4, Ange ett förnamn: ");
+            var firstname = Console.ReadLine();
+            Console.WriteLine("2/4, Ange ett efternamn: ");
+            var lastname = Console.ReadLine();
+            Console.WriteLine("3/4, Ange en e-post: ");
+            var email = Console.ReadLine();
+            Console.WriteLine("4/4, Ange ett telefonnummer: ");
+            var phone = Console.ReadLine();
 
-
+            using (SqlConnection connection = new SqlConnection(connectionString))
             using (connection)
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand(@" INSERT INTO USERS 
-                                                   VALUES(@FirstName, @LastName, @Email, @Phone)", connection);
+                SqlCommand cmd = new SqlCommand(@" INSERT INTO Users (FirstName, LastName, Email, Phone)
+                                                   VALUES(@FirstName, @LastName, @Email, @Phone);", connection);
                 var writer = cmd.Parameters;
 
-                writer.AddWithValue($"@FirstName", firstname);
-                writer.AddWithValue($"@LastName", lastname);
-                writer.AddWithValue($"@Email", email);
-                writer.AddWithValue($"@Phone", phone);
+                writer.AddWithValue("@FirstName", firstname);
+                writer.AddWithValue("@LastName", lastname);
+                writer.AddWithValue("@Email", email);
+                writer.AddWithValue("@Phone", phone);
 
-                Console.WriteLine("Användaren lades till");
+
+
+                int rows = cmd.ExecuteNonQuery();
+
+                Console.WriteLine($"{rows} st användare lades till ");
                 Console.ReadKey();
                
             }
