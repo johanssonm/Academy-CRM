@@ -51,9 +51,12 @@ namespace CRM
 
                         while (reader.Read())
                         {
-                        //Console.WriteLine("* {0} \t\t{1} {2} \t\t{3} \t\t{4}",
-                        //                    reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4));
-                        dt.Rows.Add(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetDateTime(5), reader.GetDateTime(6));
+                        dt.Rows.Add(reader.GetInt32(0), 
+                                    (reader.GetString(1) + " " + reader.GetString(2)), 
+                                    reader.GetString(3),
+                                    reader.GetString(4), 
+                                    reader.GetDateTime(5),
+                                    reader.GetDateTime(6));
 
                         }
 
@@ -89,8 +92,8 @@ namespace CRM
             using (connection)
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand(@" INSERT INTO Users (FirstName, LastName, Email, Phone)
-                                                   VALUES(@FirstName, @LastName, @Email, @Phone, @Created);", connection);
+                SqlCommand cmd = new SqlCommand(@" INSERT INTO Users (FirstName, LastName, Email, Phone, Created, Updated)
+                                                   VALUES(@FirstName, @LastName, @Email, @Phone, @Created, @Updated);", connection);
                 var writer = cmd.Parameters;
 
                 writer.AddWithValue("@FirstName", firstname);
@@ -98,6 +101,7 @@ namespace CRM
                 writer.AddWithValue("@Email", email);
                 writer.AddWithValue("@Phone", phone);
                 writer.AddWithValue("@Created", DateTime.Now);
+                writer.AddWithValue("@Updated", DateTime.Now);
 
 
 
@@ -248,7 +252,9 @@ namespace CRM
                         Console.ForegroundColor = ConsoleColor.DarkGray;
                         Console.WriteLine("3. Ändra användare");
                         Console.ResetColor();
+
                         ModifyUser();
+
                         Console.Clear();
                         continue;
 
@@ -258,6 +264,7 @@ namespace CRM
                     if (menuChoice == 4)
                     {
                         PrintAllUsers();
+
                         Console.Write("Tryck på en tangent för att avsluta...");
                         Console.ReadKey();
                         Console.Clear();
