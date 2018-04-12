@@ -7,6 +7,29 @@ using ConsoleTableExt;
 
 namespace CRM
 {
+    class Customer
+    {
+        private string FirstName { get; set; }
+        private string LastName { get; set; }
+        private string Email { get; set; }
+        List<string> Phone { get; set; }
+
+
+
+        public Customer()
+        {
+            
+        }
+
+        public Customer(string firstname, string lastName, string email, List<string> phone)
+        {
+            FirstName = firstname;
+            LastName = lastName;
+            Email = email;
+            Phone = phone;
+        }
+
+    }
 
     class Program
     {
@@ -109,7 +132,10 @@ namespace CRM
             var email = Console.ReadLine();
 
             Console.Write("4/4, Ange ett telefonnummer: ");
-            var phone = Console.ReadLine();
+            var phone = new List<string>();
+            phone.Add(Console.ReadLine());
+
+            var customer = new Customer(firstname, lastname, email, phone);
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             using (connection)
