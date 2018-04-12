@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Net;
+using System.Text;
 using ConsoleTableExt;
 
 namespace CRM
 {
-
 	class Program
 	{
 		private static string connectionString = @"Server = (localdb)\mssqllocaldb; Database = AcademyCRM; Trusted_Connection = True";
@@ -100,80 +101,43 @@ namespace CRM
 
 		{
 			Console.WriteLine();
+
 			Console.Write("1/4, Ange ett förnamn: ");
-			var firstname = Console.ReadLine();
+		    Customer customer = new Customer();
+
+		    customer.FirstName = Console.ReadLine();
 
 			Console.Write("2/4, Ange ett efternamn: ");
-			var lastname = Console.ReadLine();
+			customer.LastName = Console.ReadLine();
 
 			Console.Write("3/4, Ange en e-post: ");
-			var email = Console.ReadLine();
-
-			Console.Write("4/4, Ange ett telefonnummer *: ");
-
-		    var phoneNumbers = new List<String>();
-        
-		    phoneNumbers.Add(Console.ReadLine());
-
-
-            while (true)
-		    {
-		        Console.WriteLine("* Vill du ange fler telefonnummer? (Ja : Nej)");
-
-		        var hasmoreNumbers = Console.ReadLine();
-
-
-		        if (hasmoreNumbers.ToLower() == "ja")
-		        {
-
-		            Console.Write("Ange ett nytt telefonnummer: ");
-
-		            phoneNumbers.Add(Console.ReadLine());
-                    continue;
-		        }
-
-		        if (hasmoreNumbers.ToLower() == "nej")
-
-		        {
-		            break;
-		        }
-
-		    }
-
-
-		    using (SqlConnection connection = new SqlConnection(connectionString))
+			customer.Email = Console.ReadLine();
+		
+			using (SqlConnection connection = new SqlConnection(connectionString))
 			using (connection)
 			{
-				connection.Open();
-				SqlCommand cmd = new SqlCommand(@" DECLARE @DynID AS int;
 
-                                                   INSERT INTO Users (FirstName, LastName, Email, Created, Updated)
-												   VALUES(@FirstName, @LastName, @Email, @Created, @Updated);
-			
-												   INSERT INTO UserPhone (ID, Phone)
-												   VALUES (@@IDENTITY, @Phone);", connection);
+				connection.Open();
+			    SqlCommand cmd = new SqlCommand($@" DECLARE @DynID AS int;
+
+												   INSERT INTO Users (FirstName, LastName, Email, Created, Updated)
+												   VALUES(@FirstName, @LastName, @Email, @Created, @Updated); ", connection);
+
 				var writer = cmd.Parameters;
 
-				writer.AddWithValue("@FirstName", firstname);
-				writer.AddWithValue("@LastName", lastname);
-				writer.AddWithValue("@Email", email);
+				writer.AddWithValue("@FirstName", customer.FirstName);
+				writer.AddWithValue("@LastName", customer.LastName);
+				writer.AddWithValue("@Email", customer.Email);
 				writer.AddWithValue("@Created", DateTime.Now);
 				writer.AddWithValue("@Updated", DateTime.Now);
-
-			    foreach (var tmpNumber in phoneNumbers)
-			    {
-			        writer.AddWithValue("@Phone", tmpNumber);
-                }
-
-
 
 
                 int rows = cmd.ExecuteNonQuery();
 
 				Console.WriteLine($"{rows} st användare lades till ");
-				Console.ReadKey();
-			   
-			}
+
+
+            }
 
 		}
 
