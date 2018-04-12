@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Net;
-using ConsoleTableExt;
 
 namespace CRM
 {
@@ -33,7 +31,7 @@ namespace CRM
 
     class Program
     {
-        private static string connectionString = @"Server = (localdb)\mssqllocaldb; Database = AcademyCRM; Trusted_Connection = True";
+        private static string connectionString = @"Server = (localdb)\mssqllocaldb; Database = AcademyCRM2; Trusted_Connection = True";
         private static SqlConnection connection = new SqlConnection(connectionString);
 
         static void Main(string[] args)
@@ -98,10 +96,7 @@ namespace CRM
 
                         }
 
-                        ConsoleTableBuilder
-                            .From(dt)
-                            .WithFormat(ConsoleTableBuilderFormat.Minimal)
-                            .ExportAndWriteLine();
+                    
 
                         foreach (var tmp in reader)
                         {
@@ -135,32 +130,86 @@ namespace CRM
             var phone = new List<string>();
             phone.Add(Console.ReadLine());
 
-            var customer = new Customer(firstname, lastname, email, phone);
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (connection)
+            while (true)
             {
-                connection.Open();
-                SqlCommand cmd = new SqlCommand(@" INSERT INTO Users (FirstName, LastName, Email, Created, Updated)
+                Console.WriteLine("Vill du lägga till fler nummer? Ja : Nej");
+                var hasmoorenumbers = Console.ReadLine();
+
+                if (hasmoorenumbers.ToLower() == "ja")
+                {
+                    Console.Write("Ange ett telefonnummer: ");
+                    phone.Add(Console.ReadLine());
+                }
+
+                if (hasmoorenumbers == "nej")
+                {
+                    break;
+
+                }
+
+            }
+
+            if (phone.Count <= 1)
+            {
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (connection)
+                {
+                    connection.Open();
+                    SqlCommand cmd = new SqlCommand(@" INSERT INTO Users (FirstName, LastName, Email, Created, Updated)
 												   VALUES(@FirstName, @LastName, @Email, @Created, @Updated);
                                     
                                                    INSERT INTO UserPhone(ID, Number)
                                                    VALUES(@@IDENTITY, @Phone);", connection);
 
-                var writer = cmd.Parameters;
+                    var writer = cmd.Parameters;
 
-                writer.AddWithValue("@FirstName", firstname);
-                writer.AddWithValue("@LastName", lastname);
-                writer.AddWithValue("@Email", email);
-                writer.AddWithValue("@Phone", phone);
-                writer.AddWithValue("@Created", DateTime.Now);
-                writer.AddWithValue("@Updated", DateTime.Now);
+                    writer.AddWithValue("@FirstName", firstname);
+                    writer.AddWithValue("@LastName", lastname);
+                    writer.AddWithValue("@Email", email);
+                    writer.AddWithValue("@Phone", phone);
+                    writer.AddWithValue("@Created", DateTime.Now);
+                    writer.AddWithValue("@Updated", DateTime.Now);
 
-                int rows = cmd.ExecuteNonQuery();
+                    int rows = cmd.ExecuteNonQuery();
 
-                Console.WriteLine($"{rows} st användare lades till ");
+                    Console.WriteLine($"{rows} st användare lades till ");
+                }
             }
 
+            if (phone.Count > 1)
+            {
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (connection)
+                {
+                    connection.Open();
+                    SqlCommand cmd = new SqlCommand(@" INSERT INTO Users (FirstName, LastName, Email, Created, Updated)
+												   VALUES(@FirstName, @LastName, @Email, @Created, @Updated);", connection);
+
+                    var writer = cmd.Parameters;
+
+                    writer.AddWithValue("@FirstName", firstname);
+                    writer.AddWithValue("@LastName", lastname);
+                    writer.AddWithValue("@Email", email);
+                    writer.AddWithValue("@Created", DateTime.Now);
+                    writer.AddWithValue("@Updated", DateTime.Now);
+
+
+                    for(int i = 0; i < phone.Count; i++)
+                        writer.AddWithValue($"@Phone", phone.To);
+                    }
+
+
+
+                    INSERT INTO UserPhone(ID, Number)
+                    VALUES(@@IDENTITY, @Phone);
+
+                    int rows = cmd.ExecuteNonQuery();
+
+                    Console.WriteLine($"{rows} st användare lades till ");
+                }
+            }
 
 
         }
