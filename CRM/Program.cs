@@ -11,7 +11,6 @@ namespace CRM
 	class Program
 	{
 		private static string connectionString = @"Server = (localdb)\mssqllocaldb; Database = AcademyCRM; Trusted_Connection = True";
-		private static SqlConnection connection = new SqlConnection(connectionString);
 
 		static void Main(string[] args)
 		{
@@ -40,7 +39,7 @@ namespace CRM
 					SqlCommand cmd = new SqlCommand (@" SELECT Users.ID,FirstName,LastName,Email,
 
 														--STUFF((
-														--SELECT cast(', ' as VARCHAR(MAX)) + UserPhone.Number
+														--SELECT cast(', ' as VARCHAR(MAX)) + Phone
 														--FROM UserPhone
 														--WHERE Users.ID = UserPhone.ID
 														--FOR xml path('')), 1, 1, '') AS Phone,
@@ -59,7 +58,7 @@ namespace CRM
 						dt.Columns.Add("Förnamn", typeof(string));
 						dt.Columns.Add("Efternamn", typeof(string));
 						dt.Columns.Add("E-post", typeof(string));
-						//dt.Columns.Add("Telefon", typeof(string));
+						dt.Columns.Add("Telefon", typeof(string));
 						dt.Columns.Add("Skapad", typeof(DateTime));
 						dt.Columns.Add("Ändrad", typeof(DateTime));
 

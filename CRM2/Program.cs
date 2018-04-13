@@ -7,11 +7,11 @@ namespace CRM
 {
     class Customer
     {
-        private string FirstName { get; set; }
-        private string LastName { get; set; }
-        private string Email { get; set; }
-        List<string> Phone { get; set; }
-
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public  string Phone { get; set; }
+        public  int ID { get; set; }
 
 
         public Customer()
@@ -19,12 +19,12 @@ namespace CRM
             
         }
 
-        public Customer(string firstname, string lastName, string email, List<string> phone)
+        public Customer(string firstname, string lastName, string email)
         {
             FirstName = firstname;
             LastName = lastName;
             Email = email;
-            Phone = phone;
+            ID = Math.Abs(email.GetHashCode());
         }
 
     }
@@ -32,7 +32,6 @@ namespace CRM
     class Program
     {
         private static string connectionString = @"Server = (localdb)\mssqllocaldb; Database = AcademyCRM2; Trusted_Connection = True";
-        private static SqlConnection connection = new SqlConnection(connectionString);
 
         static void Main(string[] args)
         {
@@ -60,11 +59,11 @@ namespace CRM
 
                     SqlCommand cmd = new SqlCommand(@" SELECT Users.ID,FirstName,LastName,Email,
 
-														--STUFF((
-														--SELECT cast(', ' as VARCHAR(MAX)) + UserPhone.Number
-														--FROM UserPhone
-														--WHERE Users.ID = UserPhone.ID
-														--FOR xml path('')), 1, 1, '') AS Phone,
+														STUFF((
+														SELECT cast(', ' as VARCHAR(MAX)) + UserPhones.Number
+														FROM UserPhones
+														WHERE Users.ID = UserPhones.UserID
+														FOR xml path('')), 1, 1, '') AS Phone,
 
 														Created,Updated 
 														FROM Users;", connection);
@@ -76,11 +75,11 @@ namespace CRM
                     using (DataTable dt = new DataTable())
                     {
                         dt.TableName = "users";
-                        dt.Columns.Add("ID", typeof(string));
+                        dt.Columns.Add("ID", typeof(int));
                         dt.Columns.Add("Förnamn", typeof(string));
                         dt.Columns.Add("Efternamn", typeof(string));
                         dt.Columns.Add("E-post", typeof(string));
-                        //dt.Columns.Add("Telefon", typeof(string));
+                        dt.Columns.Add("Telefon", typeof(string));
                         dt.Columns.Add("Skapad", typeof(DateTime));
                         dt.Columns.Add("Ändrad", typeof(DateTime));
 
@@ -90,9 +89,9 @@ namespace CRM
                                         reader.GetString(1),
                                         reader.GetString(2),
                                         reader.GetString(3),
-                                        //reader.GetString(4), 
-                                        reader.GetDateTime(4),
-                                        reader.GetDateTime(5));
+                                        reader.GetString(4), 
+                                        reader.GetDateTime(5),
+                                        reader.GetDateTime(6));
 
                         }
 
@@ -116,6 +115,7 @@ namespace CRM
         static void AddNewUser()
 
         {
+
             Console.WriteLine();
             Console.Write("1/4, Ange ett förnamn: ");
             var firstname = Console.ReadLine();
@@ -126,93 +126,104 @@ namespace CRM
             Console.Write("3/4, Ange en e-post: ");
             var email = Console.ReadLine();
 
-            Console.Write("4/4, Ange ett telefonnummer: ");
-            var phone = new List<string>();
-            phone.Add(Console.ReadLine());
+            var customer = new Customer(firstname,lastname,email);
 
-            while (true)
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (connection)
             {
-                Console.WriteLine("Vill du lägga till fler nummer? Ja : Nej");
-                var hasmoorenumbers = Console.ReadLine();
+                connection.Open();
 
-                if (hasmoorenumbers.ToLower() == "ja")
-                {
-                    Console.Write("Ange ett telefonnummer: ");
-                    phone.Add(Console.ReadLine());
-                }
-
-                if (hasmoorenumbers == "nej")
-                {
-                    break;
-
-                }
-
-            }
-
-            if (phone.Count <= 1)
-            {
-
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                using (connection)
-                {
-                    connection.Open();
-                    SqlCommand cmd = new SqlCommand(@" INSERT INTO Users (FirstName, LastName, Email, Created, Updated)
-												   VALUES(@FirstName, @LastName, @Email, @Created, @Updated);
-                                    
-                                                   INSERT INTO UserPhone(ID, Number)
-                                                   VALUES(@@IDENTITY, @Phone);", connection);
-
-                    var writer = cmd.Parameters;
-
-                    writer.AddWithValue("@FirstName", firstname);
-                    writer.AddWithValue("@LastName", lastname);
-                    writer.AddWithValue("@Email", email);
-                    writer.AddWithValue("@Phone", phone);
-                    writer.AddWithValue("@Created", DateTime.Now);
-                    writer.AddWithValue("@Updated", DateTime.Now);
-
-                    int rows = cmd.ExecuteNonQuery();
-
-                    Console.WriteLine($"{rows} st användare lades till ");
-                }
-            }
-
-            if (phone.Count > 1)
-            {
-
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                using (connection)
-                {
-                    connection.Open();
-                    SqlCommand cmd = new SqlCommand(@" INSERT INTO Users (FirstName, LastName, Email, Created, Updated)
+                SqlCommand cmd = new SqlCommand(@" INSERT INTO Users (FirstName, LastName, Email, Created, Updated)
 												   VALUES(@FirstName, @LastName, @Email, @Created, @Updated);", connection);
 
-                    var writer = cmd.Parameters;
+                var writer = cmd.Parameters;
 
-                    writer.AddWithValue("@FirstName", firstname);
-                    writer.AddWithValue("@LastName", lastname);
-                    writer.AddWithValue("@Email", email);
-                    writer.AddWithValue("@Created", DateTime.Now);
-                    writer.AddWithValue("@Updated", DateTime.Now);
+                writer.AddWithValue("@FirstName", customer.FirstName);
+                writer.AddWithValue("@LastName", customer.LastName);
+                writer.AddWithValue("@Email", customer.Email);
+                writer.AddWithValue("@Created", DateTime.Now);
+                writer.AddWithValue("@Updated", DateTime.Now);
+
+                int rows = cmd.ExecuteNonQuery();
+                Console.WriteLine();
+                Console.WriteLine($"{rows} st användare lades till ");
+                Console.WriteLine();
+
+                // Console.WriteLine(customer.ID.ToString());
+
+            }
+
+            Console.Write("4/4, Ange ett telefonnummer: ");
+
+            customer.Phone = Console.ReadLine();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (connection)
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(@" declare @NEWID int 
+                                                   INSERT INTO UserPhones (UserID, Number)
+												   VALUES(@NEWID, @Number);
+
+                                                   select @NEWID = Scope_Identity()", connection);
+
+                var writer = cmd.Parameters;
+
+                writer.AddWithValue("@Number", customer.Phone);
 
 
-                    for(int i = 0; i < phone.Count; i++)
-                        writer.AddWithValue($"@Phone", phone.To);
-                    }
+                int rows = cmd.ExecuteNonQuery();
 
+                Console.WriteLine($"{rows} st användare lades till ");
 
-
-                    INSERT INTO UserPhone(ID, Number)
-                    VALUES(@@IDENTITY, @Phone);
-
-                    int rows = cmd.ExecuteNonQuery();
-
-                    Console.WriteLine($"{rows} st användare lades till ");
-                }
             }
 
 
+
+
+            //while (true)
+            //{
+            //    Console.WriteLine("Vill du lägga till ett telefonnummer? Ja : Nej");
+            //    var hasmoorenumbers = Console.ReadLine();
+
+            //    if (hasmoorenumbers.ToLower() == "ja")
+            //    {
+            //        Console.Write("Ange ett telefonnummer: ");
+
+            //        string tmpPhone = Console.ReadLine();
+
+            //        using (SqlConnection connection = new SqlConnection(connectionString))
+            //        using (connection)
+            //        {
+            //            connection.Open();
+            //            SqlCommand cmd = new SqlCommand(@"  INSERT INTO UserPhone(ID, Number)
+            //                                                VALUES(Scope_Identity, @Phone);", connection);
+
+            //            var writer = cmd.Parameters;
+
+            //            writer.AddWithValue("@Phone", customer.Phone());
+
+            //            int rows = cmd.ExecuteNonQuery();
+
+            //            Console.WriteLine($"{rows} st telefon lades till ");
+
+
+            //        }
+
+            //        if (hasmoorenumbers == "nej")
+            //        {
+            //            break;
+
+            //        }
+
+            //    }
+            //}
         }
+
+
+
+
 
         static void ModifyUser()
 
