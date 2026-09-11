@@ -9,14 +9,8 @@ import { chromium } from 'playwright';
   try {
     await page.goto('http://localhost:8081');
     await page.waitForTimeout(5000);
-    await page.screenshot({ path: 'glod_app_portrait.png' });
-    console.log('Screenshot taken at glod_app_portrait.png');
-
-    // Simulate Landscape Tablet
-    await page.setViewportSize({ width: 1024, height: 768 });
-    await page.waitForTimeout(2000);
-    await page.screenshot({ path: 'glod_app_landscape.png' });
-    console.log('Screenshot taken at glod_app_landscape.png');
+    await page.screenshot({ path: 'glod_app_awake.png' });
+    console.log('Screenshot taken at glod_app_awake.png');
 
   } catch(e) {
     console.error('Playwright error:', e);

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, ScrollView, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView, useWindowDimensions, Switch } from 'react-native';
 import * as Font from 'expo-font';
+import { activateKeepAwakeAsync, deactivateKeepAwakeAsync } from 'expo-keep-awake';
 import { tokens, getAccent } from './theme';
 import { useTimer } from './useTimer';
 import { Dial, ButtonPrimary, ButtonSecondary, TabButton, CyclePips } from './components';
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [isKeepAwake, setIsKeepAwake] = useState(true);
 
   const timer = useTimer();
   const { width, height } = useWindowDimensions();
@@ -29,6 +31,14 @@ export default function App() {
     }
     loadFonts();
   }, []);
+
+  useEffect(() => {
+    if (isKeepAwake) {
+      activateKeepAwakeAsync();
+    } else {
+      deactivateKeepAwakeAsync();
+    }
+  }, [isKeepAwake]);
 
   if (!fontsLoaded) return null;
 
@@ -62,6 +72,17 @@ export default function App() {
         <View style={styles.headerLeft}>
           <View style={[styles.statusDot, { backgroundColor: getAccent(timer.mode) }]} />
           <Text style={styles.headerTitle}>Glöd</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <Text style={styles.headerLabel}>Vaken skärm</Text>
+          <Switch
+            trackColor={{ false: tokens.ink3, true: getAccent(timer.mode) }}
+            thumbColor={tokens.text}
+            ios_backgroundColor={tokens.ink3}
+            onValueChange={setIsKeepAwake}
+            value={isKeepAwake}
+            style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
+          />
         </View>
       </View>
 
@@ -161,6 +182,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: tokens.s3,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: tokens.s2,
+  },
+  headerLabel: {
+    fontFamily: 'FamiljenGrotesk-Regular',
+    fontSize: 11,
+    color: tokens.muted,
   },
   statusDot: {
     width: 10,
