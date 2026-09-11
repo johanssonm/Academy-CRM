@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Glöd",
+    "slug": "glod",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#110E0C"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.glod.app"
+    },
+    "android": {
+      "package": "com.glod.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#110E0C",
+        "foregroundImage": "./assets/icon.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}
