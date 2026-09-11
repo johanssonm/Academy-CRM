@@ -4,15 +4,20 @@ import { chromium } from 'playwright';
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
-  // Wait a moment for Expo server to be up
-  await new Promise(r => setTimeout(r, 5000));
+  await new Promise(r => setTimeout(r, 8000));
 
   try {
     await page.goto('http://localhost:8081');
-    // Wait for the fonts and react app to mount
     await page.waitForTimeout(5000);
-    await page.screenshot({ path: 'glod_app.png' });
-    console.log('Screenshot taken at glod_app.png');
+    await page.screenshot({ path: 'glod_app_portrait.png' });
+    console.log('Screenshot taken at glod_app_portrait.png');
+
+    // Simulate Landscape Tablet
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await page.waitForTimeout(2000);
+    await page.screenshot({ path: 'glod_app_landscape.png' });
+    console.log('Screenshot taken at glod_app_landscape.png');
+
   } catch(e) {
     console.error('Playwright error:', e);
   } finally {

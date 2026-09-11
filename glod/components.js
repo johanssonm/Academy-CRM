@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Svg, { Line, RadialGradient, Defs, Rect, Circle, Stop } from 'react-native-svg';
 import { tokens, getAccent, getAccentSoft } from './theme';
 
-export function Dial({ litTicksCount, mode, progress }) {
+export function Dial({ size = 320, litTicksCount, mode, progress }) {
   const accentColor = getAccent(mode);
   const cx = 100, cy = 100, rOuter = 92;
   const ticks = [];
@@ -42,17 +42,17 @@ export function Dial({ litTicksCount, mode, progress }) {
   const glowOpacity = 0.05 + (progress) * 0.30;
 
   return (
-    <View style={styles.dialContainer}>
-      <Svg height="320" width="320" style={{ position: 'absolute', opacity: glowOpacity }}>
+    <View style={[styles.dialContainer, { width: size, height: size }]}>
+      <Svg height={size} width={size} style={{ position: 'absolute', opacity: glowOpacity }}>
         <Defs>
           <RadialGradient id="grad" cx="50%" cy="50%" rx="50%" ry="50%">
             <Stop offset="0" stopColor={accentColor} stopOpacity="1" />
             <Stop offset="0.7" stopColor={accentColor} stopOpacity="0" />
           </RadialGradient>
         </Defs>
-        <Circle cx="160" cy="160" r="160" fill="url(#grad)" />
+        <Circle cx={size/2} cy={size/2} r={size/2} fill="url(#grad)" />
       </Svg>
-      <Svg height="310" width="310" viewBox="0 0 200 200">
+      <Svg height={size * 0.96875} width={size * 0.96875} viewBox="0 0 200 200">
         {ticks}
       </Svg>
     </View>
